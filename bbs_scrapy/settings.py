@@ -15,6 +15,7 @@ NEWSPIDER_MODULE = 'bbs_scrapy.spiders'
 #USER_AGENT = 'bbs_scrapy (+http://www.yourdomain.com)'
 USER_AGENT = 'BaiDuSpider'
 DOWNLOAD_DELAY = 1
+AUTOTHROTTLE_ENABLED=True
 
 ITEM_PIPELINES = {
     'bbs_scrapy.pipelines.FidPipeline': 300,
