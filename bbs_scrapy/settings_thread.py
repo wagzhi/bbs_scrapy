@@ -18,13 +18,5 @@ DOWNLOAD_DELAY = 1
 AUTOTHROTTLE_ENABLED=True
 
 ITEM_PIPELINES = {
-    #'bbs_scrapy.pipelines.FidPipeline': 300,
     'bbs_scrapy.pipelines.SavePipeLine': 800,
-    'bbs_scrapy.pipelines.FidPipeline':600,
-    'bbs_scrapy.pipelines.FetchListPipeline':602
-}
-
-
-DOWNLOADER_MIDDLEWARES = {
-   # 'scrapy.contrib.downloadermiddleware.cookies.CookiesMiddleware': 543,
 }

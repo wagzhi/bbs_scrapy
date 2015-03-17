@@ -1,6 +1,6 @@
-from scrapy.spider import BaseSpider
+from scrapy.spider import Spider
 
-class BbsSpider(BaseSpider):
+class BbsSpider(Spider):
     name = "bbs"
     allowed_domains = ["19lou.com"]
     start_urls = [
