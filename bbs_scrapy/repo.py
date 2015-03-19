@@ -6,7 +6,7 @@ from datetime import datetime
 
 class ThreadRepo(object):
     def __init__(self):
-        self.cluster = Cluster(["127.0.0.1"],protocol_version=3)
+        self.cluster = Cluster(["139.219.132.197"],protocol_version=3)
         self.session = self.cluster.connect('docs')
         self.prepare_insert = self.session.prepare(
         """
@@ -19,14 +19,35 @@ class ThreadRepo(object):
             insert into docs.document(url,chapters) values (?,?)
         """)
 
-        self.prepare_fetch_list = self.session.prepare("""
-            insert into docs.fetch_list(url,is_fetched,updated_at) values (?,?,?)
+        self.prepare_add_fetch_record = self.session.prepare("""
+            insert into docs.fetch_list (url, status) values (?,?)
         """)
 
-    def updateFetchList(self,url,isFetched):
-        self.session.execute(self.prepare_fetch_list,[url,isFetched,datetime.utcnow()])
+        self.prepare_get_fetch_record = self.session.prepare("""
+            select * from docs.fetch_list where url = ?
+        """)
 
+        self.prepare_remove_fetch_record= self.session.prepare("""
+            delete from docs.fetch_list where url = ?
+        """)
 
+        self.prepare_get_fetch_list = self.session.prepare("""
+            select * from docs.fetch_list where status = ? limit ?
+        """)
+
+    def getFetchList(self,size=100):
+        rows = self.session.execute(self.prepare_get_fetch_list,[0,size])
+        for row in rows:
+            self.session.execute(self.prepare_add_fetch_record,[row.url,1])
+            yield row.url
+
+    def newFetchUrl(self,url):
+        results = self.session.execute(self.prepare_get_fetch_record,[url])
+        if len(results)<=0:
+            self.session.execute(self.prepare_add_fetch_record,[url,0])
+
+    def removeFetchUrl(self,url):
+        self.session.execute(self.prepare_remove_fetch_record,[url])
 
     def updateChapter(self,item):
         self.session.execute(self.prepare_update_chapter,[item['bookUrl'],item['chapters']])
@@ -45,17 +66,20 @@ class ThreadRepo(object):
              item['updatedAt'],
              item['indexedAt']]
         )
+        self.removeFetchUrl(item['url'])
 
     def close(self):
         self.cluster.shutdown()
         self.session.shutdown()
 
 if __name__ == '__main__':
-    cluster = Cluster(['127.0.0.1'],protocol_version=3)
+    cluster = Cluster(['139.219.132.197'],protocol_version=3)
     session = cluster.connect('docs')
     print cluster
-    rows=session.execute("select * from document;")
-    print rows[0]
+    rows=session.execute("select url from document;")
+    ps = session.prepare("delete chapters['abc'] from document where url=?")
+    for row in rows:
+        session.execute(ps,[row.url])
     cluster.shutdown()
     session.shutdown()
     print 'test'

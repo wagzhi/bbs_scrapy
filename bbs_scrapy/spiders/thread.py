@@ -30,13 +30,19 @@ class ThreadSpider(Spider):
     }
 
 
-    def __init__(self, url='http://www.19lou.com/forum-464884-thread-10831420794960236-1-1.html', *args, **kwargs):
+    def __init__(self, size=100, source='new', *args, **kwargs):
         '''
             抓取指定fid板块数据
         '''
         super(ThreadSpider, self).__init__(*args, **kwargs)
-        self.start_urls.append(url)
         self.threadRepo = ThreadRepo()
+        if source=='new':
+            urls = self.threadRepo.getFetchList(int(size))
+        elif source == 'update':
+            pass
+        for url in urls:
+            self.start_urls.append(url)
+
 
     def start_requests1(self):
         return [FormRequest(u"https://www.19lou.com/login",

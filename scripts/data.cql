@@ -11,3 +11,6 @@ create table doc (
 );
 
 alter table doc add content text;
+
+
+CREATE KEYSPACE docs WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'cdc' : 3 };
